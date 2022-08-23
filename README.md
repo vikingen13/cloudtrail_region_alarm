@@ -1,52 +1,54 @@
+# Monitoring the creation of AWS ressources with AWS Cloudtrail and Amazon Cloudwatch
 
-# Welcome to your CDK Python project!
+This sample demonstrate the use of AWS Cloudtrail and Amazon Cloudwatch to be alerted if ressources are created outside of an allowed region. After deploying this solution in your AWS account, you will receive an e-mail notification each time a "write event" outside an allowed region will be logged by AWS Cloudtrail.
 
-This is a blank project for CDK development with Python.
+Please note that global service events are logged as occurring in US East 1 region. This means that if the allowed region is not US East 1, user might be alerted in case of the creation of global resources like IAM users.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+## Solution architecture
 
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the `.venv`
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
+![Architecture overview](images/architecture.png)
 
-To manually create a virtualenv on MacOS and Linux:
+## Quick deployment
 
-```
-$ python3 -m venv .venv
-```
+Please run the following commands in your local shell or in AWS CloudShell.
 
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
+### **1. Deploy the CDK stack**
 
-```
-$ source .venv/bin/activate
-```
-
-If you are a Windows platform, you would activate the virtualenv like this:
-
-```
-% .venv\Scripts\activate.bat
-```
-
-Once the virtualenv is activated, you can install the required dependencies.
-
-```
-$ pip install -r requirements.txt
+``` shell
+# Clone the repository 
+git clone https://github.com/vikingen13/cloudtrail_region_alarm
+cd cloudtrail_region_alarm
+# Set up and activate virtual environment
+python3 -m venv .env
+source .env/bin/activate 
+# Install AWS CDK and neccessary CDK libraries
+npm install -g aws-cdk
+pip3 install -r requirements.txt   
+# If first time running CDK deployment in this account / region, run CDK bootstap
+# This is a one-time activity per account/region, e.g. 
+# cdk bootstrap aws://123456789/us-east-1
+cdk bootstrap aws://<Account Id>/<Region name>
+# Deploy the stack. Ensure to replace <E-Mail> with the E-Mail adresss to send notifications to and <AWSREGION> by the region where you want to allow the ressource creation. You will be alerted when ressources are created OUTSIDE <AWSREGION>
+cdk deploy --parameters email=<EMAIL> --parameters awsregion=<AWSREGION>
 ```
 
-At this point you can now synthesize the CloudFormation template for this code.
+### **2. Confirm the SNS e-mail subscription**  
 
+Please check your mailbox for an e-mail message with subject "AWS Notification - Subscription Confirmation" and confirm the subscription.
+
+### **3. Test the solution** 
+
+Create a ressource outside the allowed region. You should receive a notification on your email.
+
+### **4.Remove the stack**
+
+``` 
+cd cloudtrail_region_alarm
+cdk destroy
 ```
-$ cdk synth
-```
 
-To add additional dependencies, for example other CDK libraries, just add
-them to your `setup.py` file and rerun the `pip install -r requirements.txt`
-command.
-
+**Note**
+This architecture makes an opinionated use of AWS services. Other solutions such as the use of AWS event bridge are possible.
 ## Useful commands
 
  * `cdk ls`          list all stacks in the app
@@ -55,4 +57,3 @@ command.
  * `cdk diff`        compare deployed stack with current state
  * `cdk docs`        open CDK documentation
 
-Enjoy!
