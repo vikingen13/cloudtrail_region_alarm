@@ -6,7 +6,7 @@ Please note that global service events are logged as occurring in US East 1 regi
 
 ## Solution architecture
 
-![Architecture overview](images/architecture.png)
+![Architecture overview](images/Architecture.png)
 
 ## Quick deployment
 
