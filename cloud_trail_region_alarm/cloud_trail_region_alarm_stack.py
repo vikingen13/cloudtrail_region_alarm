@@ -35,7 +35,10 @@ class CloudTrailRegionAlarmStack(Stack):
         myMetricFilter = myLogGroup.add_metric_filter("RegionsNotAllowed",
             metric_namespace=self.stack_name,
             metric_name="RegionsNotAllowed",
-            filter_pattern=logs.FilterPattern.string_value("$.awsRegion","!=",aws_region.value_as_string),
+            filter_pattern=logs.FilterPattern.all(
+                logs.FilterPattern.string_value("$.awsRegion","!=",aws_region.value_as_string),
+                logs.FilterPattern.string_value("$.eventSource","!=","sts.amazonaws.com")
+            ),
             metric_value="1",
             default_value=0
         )
